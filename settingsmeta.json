@@ -1,0 +1,19 @@
+{
+    "name": "Student_ID",
+    "color": "#22a7f0",
+    "skillMetadata": {
+        "sections": [
+            {
+                "name": "student_id",
+                "fields": [
+                    {
+                        "name": "student_id",
+                        "type": "student_id",
+                        "label": "A University of Limerick student's ID number",
+                        "value": "15168867"
+                    }
+                ]
+            }
+        ]
+    }
+}
