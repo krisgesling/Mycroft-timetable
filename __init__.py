@@ -33,6 +33,12 @@ class TimetableSkill(MycroftSkill):
         super(TimetableSkill, self).__init__(name="TimetableSkill")
         self.timetable = self._lookup(self.settings.get("student_id"))
 
+    @intent_handler(IntentBuilder("").require("More")
+            .require("module"))
+    def handle_tell_more(self, message):
+        module_id = message.data.get("module")
+        self._handle_module_detail_request(module_id)
+
     @intent_handler(IntentBuilder("").require("Mod_query").require("Type").require("module_id"))
     def handle_module_details(self, message):
         module_id = message.data.get("module_id")
@@ -59,8 +65,6 @@ class TimetableSkill(MycroftSkill):
     def handle_query_class(self, message):
         pos = message.data.get("pos")
         day = message.data.get("day")
-        print(pos)
-        print(day)
         self._handle_query(pos, day)
 
     @intent_handler(IntentBuilder("").require("Request").require("id"))
@@ -185,7 +189,8 @@ class TimetableSkill(MycroftSkill):
         next_lesson.startTime = datetime.datetime.strptime(next_lesson.startTime, "%H:%M")
         next_lesson.startTime = datetime.datetime.strftime(next_lesson.startTime, "%I:%M %p")
         self.speak_dialog("next_lesson", {"module": next_lesson.module, "startTime": next_lesson.startTime})
-                
+        self.set_context("module", day[lecture_index].module)
+
     def _subtract_times(self, time1, time2):
         timeA = datetime.datetime.strptime(time1, "%H:%M")
         timeB = datetime.datetime.strptime(time2, "%H:%M")
