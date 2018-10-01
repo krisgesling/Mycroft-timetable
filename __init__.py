@@ -33,30 +33,34 @@ class TimetableSkill(MycroftSkill):
         super(TimetableSkill, self).__init__(name="TimetableSkill")
         self.timetable = self._lookup(self.settings.get("student_id"))
 
-    @intent_handler(IntentBuilder("").require("Module_details").require("module_id"))
+    @intent_handler(IntentBuilder("").require("Mod_query").require("Type").require("module_id"))
     def handle_module_details(self, message):
         module_id = message.data.get("module_id")
         self._handle_module_detail_request(module_id)
 
-    @intent_handler(IntentBuilder("").require("Next_lesson"))
+    @intent_handler(IntentBuilder("").require("General_Query").require("Pronoun").require("Next").
+            require("Type"))
     def handle_next_lesson(self, message):
         self._handle_next_lesson()
 
-    @intent_handler(IntentBuilder("").require("First_lesson").require("day"))
+    @intent_handler(IntentBuilder("").require("General_Query").require("Starting").require("Type").
+            require("day"))
     def handle_first_lesson_req(self, message):
         day = message.data.get("day")
         self._handle_first_les(day)
 
-    @intent_handler(IntentBuilder("").require("Next_lesson_location"))
+    @intent_handler(IntentBuilder("").require("Where").require("Pronoun").require("Next").
+            require("Type"))
     def handle_next_lesson_location(self, message):
-        print("hello")
         self._handle_next_lesson_location()
 
-    @intent_handler(IntentBuilder("").require("Position").require("pos")
-    .require("Class").require("day"))
+    @intent_handler(IntentBuilder("").require("General_Query").require("Pronoun")
+            .require("pos").require("Type").require("day"))
     def handle_query_class(self, message):
         pos = message.data.get("pos")
         day = message.data.get("day")
+        print(pos)
+        print(day)
         self._handle_query(pos, day)
 
     @intent_handler(IntentBuilder("").require("Request").require("id"))
@@ -126,6 +130,8 @@ class TimetableSkill(MycroftSkill):
 
         self.speak_dialog("lecture_info", {"module": day[lecture_index].module,
             "s_time": day[lecture_index].startTime, "location": day[lecture_index].location})
+
+        self.set_context("module", day[lecture_index].module)
 
     def _handle_first_les(self, req_day):
         week_index = self.assertDay(req_day)

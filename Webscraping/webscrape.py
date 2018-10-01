@@ -118,11 +118,13 @@ def moduledetails_request(module_id):
     return module_name
 
 def parse_module_details(module_details_html):
-    soup = BeautifulSoup(module_details_html, 'html.parser')
-    results = soup.find_all('font', attrs={'size':'2'})
-    module_name = results[MODULE_NAME_INDEX].get_text()
-    module_name.rstrip()
-    return module_name.rstrip()
+    try:
+        soup = BeautifulSoup(module_details_html, 'html.parser')
+        results = soup.find_all('font', attrs={'size':'2'})
+        module_name = results[MODULE_NAME_INDEX].get_text()
+        return module_name.rstrip()
+    except:
+        return None
 
 def parse(timetable_html):
 
