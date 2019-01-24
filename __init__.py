@@ -189,11 +189,17 @@ class TimetableSkill(MycroftSkill):
         next_lesson.startTime = datetime.datetime.strptime(next_lesson.startTime, "%H:%M")
         next_lesson.startTime = datetime.datetime.strftime(next_lesson.startTime, "%I:%M %p")
         self.speak_dialog("next_lesson", {"module": next_lesson.module, "startTime": next_lesson.startTime})
-        self.set_context("module", day[lecture_index].module)
+        self.set_context("module", next_lesson.module)
 
     def _subtract_times(self, time1, time2):
+        print(time1)
+        print(time1[-2:])
+        if time1[-2:] is "PM":
+            print("woop")
         timeA = datetime.datetime.strptime(time1, "%H:%M")
         timeB = datetime.datetime.strptime(time2, "%H:%M")
+        print(timeA)
+        print(timeB)
         newTime = timeA - timeB
        
        #THIS CHECK HAS TO BE DONE OR ELSE THE TIME WILL LAPSE AROUND TO THE NEXT DAY
