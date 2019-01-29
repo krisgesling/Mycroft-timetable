@@ -15,6 +15,7 @@ from .Webscraping import webscrape
 from adapt.intent import IntentBuilder
 from mycroft.skills.core import MycroftSkill, intent_handler
 from mycroft.util.log import getLogger
+from mycroft.util.parse import extract_datetime
 
 logger = getLogger(__name__)
 
@@ -64,8 +65,29 @@ class TimetableSkill(MycroftSkill):
             .require("pos").require("Type").require("day"))
     def handle_query_class(self, message):
         pos = message.data.get("pos")
+        if pos == "on":
+            pos = "last"
         day = message.data.get("day")
         self._handle_query(pos, day)
+
+    @intent_handler(IntentBuilder("").require("General_Query").require("Pronoun")
+            .require("pos").require("Type").require("tomorrow"))
+    def handle_class_tomorrow(self, message):
+        pos = message.data.get("pos")
+        if pos == "on" or pos == "is":
+            pos = "last"
+        day = datetime.datetime.today().weekday()+1
+        if day is 7:
+            day = 0
+        self._handle_query(pos, calendar.day_name[day])
+
+    @intent_handler(IntentBuilder("").require("General_Query").require("Pronoun")
+            .require("pos").require("Type").require("today"))
+    def handle_class_today(self, message):
+        pos = message.data.get("pos")
+        if pos == "on" or pos == "is":
+            pos = "last"
+        self._handle_query(pos, calendar.day_name[datetime.datetime.today().weekday()])
 
     @intent_handler(IntentBuilder("").require("Request").require("id"))
     def handle_intent(self, message):
@@ -98,9 +120,12 @@ class TimetableSkill(MycroftSkill):
         return timetable
 
     def assertDay(self, chosen_day):
+        chosen_day = chosen_day.lower()
+        print(chosen_day)
         days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
         for day in days_of_week:
             if chosen_day == day:
+                print(day)
                 return days_of_week.index(day)
         self.speak_dialog("invalid_argument")
         return None
@@ -118,11 +143,13 @@ class TimetableSkill(MycroftSkill):
         # NEED TO FIGURE OUT RETURNS FOR INVALID DAYS AND POSITIONS.
         # IF I RETURN INDEX 0 AND THEN CHECK FOR 0, IT WILL SEE IT AS AN ERROR AND RETURN. NEED FIX
         lecture_index = self.assertPosition(position)
+        print(lecture_index, "lecture_index")
+        print(position, "position")
 
         day = self.timetable.days[week_index]
 
         if not day:
-            self.speak_dialog("no_lecture")
+            self.speak_dialog("no_lessons")
             return None
 
         if lecture_index == last_position:
@@ -164,12 +191,16 @@ class TimetableSkill(MycroftSkill):
         current_time = self._get_current_time()
         next_lesson = None
         time_dif = None
+
+        if day is None:
+            return
+
         for lesson in day:
             time_dif = self._subtract_times(lesson.startTime, current_time)
             if time_dif:
-                next_lesson = lesson
-                break
-        return next_lesson
+                return lesson
+
+        return None 
 
     def _handle_next_lesson_location(self):
         next_lesson = self._get_next_lesson()
