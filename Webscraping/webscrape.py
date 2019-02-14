@@ -12,6 +12,7 @@ MODULE_DETAILS_URL = 'https://www.timetable.ul.ie/tt_moduledetails_res.asp'
 MODULE_URL = 'https://www.timetable.ul.ie/mod_res.asp'
 MODULE_NAME_INDEX = 3
 
+
 def format_module_details(module):
     if not module:
         print("No module here")
@@ -27,13 +28,13 @@ def format_module_details(module):
             temp_string = word_array1[i][1:]
             temp_string = temp_string.lower()
             word = word_array1[i][0] + temp_string + " "
-            module.name  += word
+            module.name += word
 
         for i in range(len(word_array2)):
             temp_string = word_array2[i][1:]
             temp_string = temp_string.lower()
             word = word_array2[i][0] + temp_string + " "
-            module.lecturer  += word
+            module.lecturer += word
 
         module.name.rstrip()
         module.lecturer.rstrip()
@@ -41,12 +42,14 @@ def format_module_details(module):
     except Exception as e:
         print(e)
 
+
 def get_module_details(module_code):
     module_name = moduledetails_request(module_code)
     module_lecturer = module_lecturer_request(module_code)
     module_ref = Module(module_name, module_lecturer)
     format_module_details(module_ref)
     return module_ref
+
 
 def simple_get(s_id):
     """
@@ -67,11 +70,11 @@ def simple_get(s_id):
 
 
 def is_good_response(resp):
-   
+
     content_type = resp.headers['Content-Type'].lower()
-    return (resp.status_code == 200 
-            and content_type is not None 
-            and content_type.find('html') > -1)
+    return (resp.status_code == 200 and
+            content_type is not None and
+            content_type.find('html') > -1)
 
 
 def module_lecturer_request(module_id):
@@ -86,24 +89,25 @@ def module_lecturer_request(module_id):
     module_lecturer = parse_module_lecturer(result.text)
     return module_lecturer
 
+
 def parse_module_lecturer(module_details):
-    
     soup = BeautifulSoup(module_details, 'html.parser')
-    results = soup.find_all('td', attrs={'valign':'top'})
+    results = soup.find_all('td', attrs={'valign': 'top'})
     if not results:
         return None
     for day in results:
-        lectures = day.find_all('font', attrs={'size':'1'})
+        lectures = day.find_all('font', attrs={'size': '1'})
         if not lectures:
             continue
         for lecture in lectures:
             lecture_raw = lecture.find('b').get_text()
-            newstr = lecture_raw.replace('-','')
+            newstr = lecture_raw.replace('-', '')
             attrs = newstr.split()
             if (str(attrs[2]) == 'LEC'):
                 lecturer = str(attrs[4]) + " " + str(attrs[3])
                 return lecturer
     return None
+
 
 def moduledetails_request(module_id):
     payload = {'T1': module_id}
@@ -117,41 +121,44 @@ def moduledetails_request(module_id):
     module_name = parse_module_details(result.text)
     return module_name
 
+
 def parse_module_details(module_details_html):
     try:
         soup = BeautifulSoup(module_details_html, 'html.parser')
-        results = soup.find_all('font', attrs={'size':'2'})
+        results = soup.find_all('font', attrs={'size': '2'})
         module_name = results[MODULE_NAME_INDEX].get_text()
         return module_name.rstrip()
     except:
         return None
 
+
 def parse(timetable_html):
 
     soup = BeautifulSoup(timetable_html, 'html.parser')
-    results = soup.find_all('td', attrs={'valign':'top'})
+    results = soup.find_all('td', attrs={'valign': 'top'})
     if not results:
         return None
     days = []
     for day in results:
         days.append(parse_days(day))
-    
+
     if all(day is None for day in days):
         return None
 
     timetable = Timetable(days)
     return timetable
 
+
 def parse_days(day):
 
-    lectures = day.find_all('font', attrs={'size':'1'})
+    lectures = day.find_all('font', attrs={'size': '1'})
     if not lectures:
         return None
 
     daily_lectures = []
     for lecture in lectures:
         lecture_raw = lecture.find('b').get_text()
-        newstr = lecture_raw.replace('-','')
+        newstr = lecture_raw.replace('-', '')
         attrs = newstr.split()
         if (str(attrs[3]) == 'LAB') or (str(attrs[3]) == 'TUT'):
             attrs[3] = attrs[3] + '-' + attrs[4]
@@ -161,11 +168,12 @@ def parse_days(day):
         startTime = start_time.strftime("%H:%M")
         end_time = datetime.strptime(attrs[1], "%H:%M")
         endTime = end_time.strftime("%H:%M")
-        lecture_attr = Lecture(startTime, endTime, attrs[2], attrs[3], attrs[4])
+        lecture_attr = Lecture(startTime, endTime,
+                               attrs[2], attrs[3], attrs[4])
         daily_lectures.append(lecture_attr)
-    
+
     return daily_lectures
 
-def log_error(e):
 
+def log_error(e):
     print(e)

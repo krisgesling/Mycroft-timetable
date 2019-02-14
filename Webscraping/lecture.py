@@ -7,4 +7,3 @@ class Lecture:
             self.module = module
             self.slot_type = slot_type
             self.location = location
-
