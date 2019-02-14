@@ -81,6 +81,14 @@ class TimetableSkill(MycroftSkill):
             day = 0
         self._handle_query(pos, calendar.day_name[day])
 
+    @intent_handler(IntentBuilder("").require("Q_lecture"))
+    def Question_lectures(self, message):
+        self._handle_q_query("first", calendar.day_name[datetime.datetime.today().weekday()])
+
+    @intent_handler(IntentBuilder("").require("Q_lecture_tomorrow"))
+    def Question_lectures_tomorrow(self, message):
+        self._handle_q_query("first", calendar.day_name[datetime.datetime.today().weekday()+1])
+
     @intent_handler(IntentBuilder("").require("General_Query").require("Pronoun")
             .require("pos").require("Type").require("today"))
     def handle_class_today(self, message):
@@ -138,10 +146,32 @@ class TimetableSkill(MycroftSkill):
         self.speak_dialog("invalid_argument")
         return None
 
+    def _handle_q_query(self, position, day):
+        week_index = self.assertDay(day)
+        lecture_index = self.assertPosition(position)
+        print(lecture_index, "lecture_index")
+        print(position, "position")
+
+        day = self.timetable.days[week_index]
+
+        if not day:
+            self.speak_dialog("no_lessons")
+            return None
+
+        if lecture_index == last_position:
+            lecture_index = len(day)-1 
+
+        if len(day) < (lecture_index+1):
+            self.speak_dialog("no_lecture")
+            return None
+
+        self.speak_dialog("lecture_q_info", {"module": day[lecture_index].module,
+            "s_time": day[lecture_index].startTime, "location": day[lecture_index].location})
+
+        self.set_context("module", day[lecture_index].module)
+
     def _handle_query(self, position, day):
         week_index = self.assertDay(day)
-        # NEED TO FIGURE OUT RETURNS FOR INVALID DAYS AND POSITIONS.
-        # IF I RETURN INDEX 0 AND THEN CHECK FOR 0, IT WILL SEE IT AS AN ERROR AND RETURN. NEED FIX
         lecture_index = self.assertPosition(position)
         print(lecture_index, "lecture_index")
         print(position, "position")
