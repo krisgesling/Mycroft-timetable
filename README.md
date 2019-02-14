@@ -1,5 +1,5 @@
 # <img src='https://raw.githack.com/FortAwesome/Font-Awesome/master/svgs/solid/book.svg' card_color='#6A1A41' width='50' height='50' style='vertical-align:bottom'/>
- UL Timetable
+UL Timetable
 Request details about a specific UL student timetable
 
 ## About 
