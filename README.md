@@ -35,7 +35,6 @@ Brian Archbold(@BrianArch96)
 **Daily**
 Configuration
 Information
-WARNING: You have no Categories selected. Please ensure your Skill is assigned to at least one Category.
 
 ## Tags
 #student
