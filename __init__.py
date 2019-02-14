@@ -1,12 +1,3 @@
-# TODO: Add an appropriate license to your skill before publishing.  See
-# the LICENSE file for more information.
-
-# Below is the list of outside modules you'll be using in your skill.
-# They might be built-in to Python, from mycroft-core or from external
-# libraries.  If you use an external library, be sure to include it
-# in the requirements.txt file so the library is installed properly
-# when the skill gets installed later by a user.
-
 import re
 import calendar
 import datetime
@@ -23,12 +14,9 @@ LECTURE_TIME_LIMIT = 540
 last_position = 7
 INITIAL_LESSON = 0
 
-# Each skill is contained within its own class, which inherits base methods
-# from the MycroftSkill class.  You extend this class as shown below.
 
 class TimetableSkill(MycroftSkill):
 
-    # The constructor of the skill, which calls MycroftSkill's constructor
     def __init__(self):
         logger.info('init is working')
         super(TimetableSkill, self).__init__(name="TimetableSkill")
@@ -56,11 +44,6 @@ class TimetableSkill(MycroftSkill):
         day = message.data.get("day")
         self._handle_first_les(day)
 
-    @intent_handler(IntentBuilder("").require("Where").require("Pronoun").require("Next").
-            require("Type"))
-    def handle_next_lesson_location(self, message):
-        self._handle_next_lesson_location()
-
     @intent_handler(IntentBuilder("").require("General_Query").require("Pronoun")
             .require("pos").require("Type").require("day"))
     def handle_query_class(self, message):
@@ -84,6 +67,11 @@ class TimetableSkill(MycroftSkill):
     @intent_handler(IntentBuilder("").require("Q_lecture"))
     def Question_lectures(self, message):
         self._handle_q_query("first", calendar.day_name[datetime.datetime.today().weekday()])
+
+    @intent_handler(IntentBuilder("").require("next_lesson_loc"))
+    def next_lesson_loc(self, message):
+        print("hello lesson")
+        self._handle_next_lesson_location()
 
     @intent_handler(IntentBuilder("").require("Q_lecture_tomorrow"))
     def Question_lectures_tomorrow(self, message):
@@ -129,11 +117,9 @@ class TimetableSkill(MycroftSkill):
 
     def assertDay(self, chosen_day):
         chosen_day = chosen_day.lower()
-        print(chosen_day)
         days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
         for day in days_of_week:
             if chosen_day == day:
-                print(day)
                 return days_of_week.index(day)
         self.speak_dialog("invalid_argument")
         return None
@@ -149,8 +135,6 @@ class TimetableSkill(MycroftSkill):
     def _handle_q_query(self, position, day):
         week_index = self.assertDay(day)
         lecture_index = self.assertPosition(position)
-        print(lecture_index, "lecture_index")
-        print(position, "position")
 
         day = self.timetable.days[week_index]
 
@@ -173,8 +157,6 @@ class TimetableSkill(MycroftSkill):
     def _handle_query(self, position, day):
         week_index = self.assertDay(day)
         lecture_index = self.assertPosition(position)
-        print(lecture_index, "lecture_index")
-        print(position, "position")
 
         day = self.timetable.days[week_index]
 
@@ -253,25 +235,14 @@ class TimetableSkill(MycroftSkill):
         self.set_context("module", next_lesson.module)
 
     def _subtract_times(self, time1, time2):
-        print(time1)
-        print(time1[-2:])
-        if time1[-2:] is "PM":
-            print("woop")
         timeA = datetime.datetime.strptime(time1, "%H:%M")
         timeB = datetime.datetime.strptime(time2, "%H:%M")
-        print(timeA)
-        print(timeB)
         newTime = timeA - timeB
        
-       #THIS CHECK HAS TO BE DONE OR ELSE THE TIME WILL LAPSE AROUND TO THE NEXT DAY
-       #Does not return negatives
-
         if (newTime.seconds/60 > LECTURE_TIME_LIMIT):
             return None
 
         return newTime.seconds/60
 
-# The "create_skill()" method is used to create an instance of the skill.
-# Note that it's outside the class itself.
 def create_skill():
     return TimetableSkill()

@@ -1,0 +1,6 @@
+{
+	"utterance": "tell me more",
+	"intent_type":"handle_tell_more", 
+	"set_context": {"module":"CS4826"},
+	"expected_dialog": "module_details_ans"
+}

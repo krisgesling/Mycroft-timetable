@@ -1,0 +1,5 @@
+{
+	"utterance": "what is my first class tomorrow",
+	"intent_type": "handle_class_tomorrow",
+	"expected_dialog": ["lecture_info", "no_lecture"]
+}

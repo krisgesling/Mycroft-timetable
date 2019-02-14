@@ -1,0 +1,5 @@
+{
+	"utterance": "Where is my next lesson",
+	"intent_type": "next_lesson_loc",
+	"expected_dialog": ["no_more_lessons", "next_lesson_location"]
+}

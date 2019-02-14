@@ -1,0 +1,5 @@
+{
+	"utterance": "Have I lectures today",
+	"intent_type": "Question_lectures",
+	"expected_dialog": ["no_lessons", "no_lecture", "lecture_q_info"]
+}

@@ -1,5 +1,5 @@
 {
 	"utterance": "what is my first class on Monday",
-	"intent_type" : "handle_first_lesson_req",
-	"expected_dialog": "first_lec_ans"
+	"intent_type" : "handle_query_class",
+	"expected_dialog": "lecture_info"
 }	
