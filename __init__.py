@@ -74,7 +74,6 @@ class TimetableSkill(MycroftSkill):
 
     @intent_handler(IntentBuilder("").require("next_lesson_loc"))
     def next_lesson_loc(self, message):
-        print("hello lesson")
         self._handle_next_lesson_location()
 
     @intent_handler(IntentBuilder("").require("Q_lecture_tomorrow"))

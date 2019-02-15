@@ -15,7 +15,6 @@ MODULE_NAME_INDEX = 3
 
 def format_module_details(module):
     if not module:
-        print("No module here")
         return
     try:
         word_array1 = module.name.split(" ")
