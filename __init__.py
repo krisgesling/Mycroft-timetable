@@ -240,18 +240,18 @@ class TimetableSkill(MycroftSkill):
                           {"location": next_lesson.location})
 
     def _handle_next_lesson(self):
-        next_lesson = self._get_next_lesson()
+        nl = self._get_next_lesson()  # next lesson
 
-        if not next_lesson:
+        if not nl:
             self.speak_dialog("no_more_lessons")
             return
-        next_lesson.startTime =
-        datetime.datetime.strptime(next_lesson.startTime, "%H:%M")
-        next_lesson.startTime =
-        datetime.datetime.strftime(next_lesson.startTime, "%I:%M %p")
-        self.speak_dialog("next_lesson", {"module": next_lesson.module,
-                                          "startTime": next_lesson.startTime})
-        self.set_context("module", next_lesson.module)
+        nl.startTime = datetime.datetime.strptime(nl.startTime,
+                                                  "%H:%M")
+        nl.startTime = datetime.datetime.strftime(nl.startTime,
+                                                  "%I:%M %p")
+        self.speak_dialog("next_lesson", {"module": nl.module,
+                                          "startTime": nl.startTime})
+        self.set_context("module", nl.module)
 
     def _subtract_times(self, time1, time2):
         timeA = datetime.datetime.strptime(time1, "%H:%M")
