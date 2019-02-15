@@ -119,7 +119,7 @@ class TimetableSkill(MycroftSkill):
             if not timetable:
                 self.speak_dialog("no entry found")
                 return
-        except:
+        except Exception:
             self.speak_dialog("no entry found")
         return timetable
 
@@ -245,10 +245,10 @@ class TimetableSkill(MycroftSkill):
         if not next_lesson:
             self.speak_dialog("no_more_lessons")
             return
-        next_lesson.startTime = datetime.datetime.
-        strptime(next_lesson.startTime, "%H:%M")
-        next_lesson.startTime = datetime.datetime.
-        strftime(next_lesson.startTime, "%I:%M %p")
+        next_lesson.startTime =
+        datetime.datetime.strptime(next_lesson.startTime, "%H:%M")
+        next_lesson.startTime =
+        datetime.datetime.strftime(next_lesson.startTime, "%I:%M %p")
         self.speak_dialog("next_lesson", {"module": next_lesson.module,
                                           "startTime": next_lesson.startTime})
         self.set_context("module", next_lesson.module)

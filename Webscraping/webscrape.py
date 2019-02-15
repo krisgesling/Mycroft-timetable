@@ -128,7 +128,7 @@ def parse_module_details(module_details_html):
         results = soup.find_all('font', attrs={'size': '2'})
         module_name = results[MODULE_NAME_INDEX].get_text()
         return module_name.rstrip()
-    except:
+    except Exception:
         return None
 
 
