@@ -76,6 +76,14 @@ class TimetableSkill(MycroftSkill):
     def next_lesson_loc(self, message):
         self._handle_next_lesson_location()
 
+    @intent_handler(IntentBuilder("").require("next_lesson_for_module").require("module_id"))
+    def request_next_lesson_for_module(self, message):
+        days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday",
+                        "saturday"]
+        print("ello wrodl")
+        current_day = datetime.date.today()
+        current_weekday = calendar.day_name[current_day.weekday()].lower()
+
     @intent_handler(IntentBuilder("").require("Q_lecture_tomorrow"))
     def Question_lectures_tomorrow(self, message):
         self._handle_q_query("first", calendar.day_name[datetime.datetime
@@ -253,6 +261,8 @@ class TimetableSkill(MycroftSkill):
         self.set_context("module", nl.module)
 
     def _subtract_times(self, time1, time2):
+        time1 = time1.split(" ", 1)[0]
+        print(time1, time2)
         timeA = datetime.datetime.strptime(time1, "%H:%M")
         timeB = datetime.datetime.strptime(time2, "%H:%M")
         newTime = timeA - timeB
