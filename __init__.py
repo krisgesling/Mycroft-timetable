@@ -80,9 +80,25 @@ class TimetableSkill(MycroftSkill):
     def request_next_lesson_for_module(self, message):
         days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday",
                         "saturday"]
-        print("ello wrodl")
+        m_id = message.data.get("module_id")
         current_day = datetime.date.today()
         current_weekday = calendar.day_name[current_day.weekday()].lower()
+        index_day = self.assertDay(current_weekday)
+        day_in, lesson = self._handle_find_module(index_day, m_id)
+        if lesson == None:
+            self.speak_dialog("Could not find module i.d, possibly not valid")
+            return
+        lesson.slot_type = self._parse_slot_type(lesson.slot_type)
+        if day_in == index_day:
+            self.speak_dialog("next_module_time", {"module":m_id, "type": lesson.slot_type,
+                "day":"today", "time": lesson.startTime, "place": lesson.location})
+        elif day_in+1 == index_day:
+            self.speak_dialog("next_module_time", {"module":m_id, "type": lesson.slot_type,
+                "day":"tomorrow", "time": lesson.startTime, "place": lesson.location})
+        else:
+            self.speak_dialog("next_module_time", {"module":m_id, "type": lesson.slot_type,
+                "day":days_of_week[day_in], "time": lesson.startTime, "place": lesson.location})
+
 
     @intent_handler(IntentBuilder("").require("Q_lecture_tomorrow"))
     def Question_lectures_tomorrow(self, message):
@@ -119,6 +135,24 @@ class TimetableSkill(MycroftSkill):
         self.speak_dialog("module_details_ans",
                           {"id": module_id, "name": module_details.name,
                            "lecturer": module_details.lecturer})
+
+    def _handle_find_module(self, index_day, module):
+        i = 0
+        for day in self.timetable.days[index_day:]:
+            if not day:
+                continue
+            for lesson in day:
+                if lesson.module.lower() == module:
+                    return index_day+i, lesson
+            i = i + 1
+        return None, None
+
+    def _parse_slot_type(self, slot_type):
+        if slot_type.split("-")[0] == "TUT":
+            return "Tutorial"
+        if slot_type.split("-")[0] == "LEC":
+            return "Lecture"
+        return "Lab"
 
     def _lookup(self, student_id):
         try:
@@ -175,6 +209,8 @@ class TimetableSkill(MycroftSkill):
 
     def _handle_query(self, position, day):
         week_index = self.assertDay(day)
+        if not week_index:
+            return None
         lecture_index = self.assertPosition(position)
 
         day = self.timetable.days[week_index]
@@ -262,7 +298,6 @@ class TimetableSkill(MycroftSkill):
 
     def _subtract_times(self, time1, time2):
         time1 = time1.split(" ", 1)[0]
-        print(time1, time2)
         timeA = datetime.datetime.strptime(time1, "%H:%M")
         timeB = datetime.datetime.strptime(time2, "%H:%M")
         newTime = timeA - timeB
