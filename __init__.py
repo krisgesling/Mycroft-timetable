@@ -26,12 +26,14 @@ class TimetableSkill(MycroftSkill):
                     .require("module"))
     def handle_tell_more(self, message):
         module_id = message.data.get("module")
+        module_id = re.sub(r'\W+', '', module_id)
         self._handle_module_detail_request(module_id)
 
     @intent_handler(IntentBuilder("").require("Mod_query").require("Type")
                     .require("module_id"))
     def handle_module_details(self, message):
         module_id = message.data.get("module_id")
+        module_id = re.sub(r'\W+', '', module_id)
         self._handle_module_detail_request(module_id)
 
     @intent_handler(IntentBuilder("").require("General_Query")
@@ -44,6 +46,11 @@ class TimetableSkill(MycroftSkill):
     def handle_first_lesson_req(self, message):
         day = message.data.get("day")
         self._handle_first_les(day)
+
+    @intent_handler(IntentBuilder("").require("General_Query")
+                    .require("Pronoun").require("type_lesson"))
+    def handle_type_lesson(self, message):
+        print("hello world")
 
     @intent_handler(IntentBuilder("").require("General_Query")
                     .require("Pronoun").require("pos").require("Type")
@@ -81,6 +88,7 @@ class TimetableSkill(MycroftSkill):
         days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday",
                         "saturday"]
         m_id = message.data.get("module_id")
+        m_id = re.sub(r'\W+', '', m_id)
         current_day = datetime.date.today()
         current_weekday = calendar.day_name[current_day.weekday()].lower()
         index_day = self.assertDay(current_weekday)
