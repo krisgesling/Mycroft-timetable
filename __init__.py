@@ -109,6 +109,7 @@ class TimetableSkill(MycroftSkill):
                     .require("Pronoun").require("pos").require("Type")
                     .require("today"))
     def handle_class_today(self, message):
+        print("HEY")
         pos = message.data.get("pos")
         if pos == "on" or pos == "is":
             pos = "last"
@@ -199,17 +200,22 @@ class TimetableSkill(MycroftSkill):
         if len(day) < (lecture_index+1):
             self.speak_dialog("no_lecture")
             return None
-
+        day[lecture_index].slot_type = self._parse_slot_type(day[lecture_index].slot_type)
+        print(day[lecture_index].slot_type)
         self.speak_dialog("lecture_q_info",
-                          {"module": day[lecture_index].module,
+                           {"type": day[lecture_index].slot_type,
+                           "module": day[lecture_index].module,
                            "s_time": day[lecture_index].startTime,
                            "location": day[lecture_index].location})
 
         self.set_context("module", day[lecture_index].module)
 
     def _handle_query(self, position, day):
-        week_index = self.assertDay(day)
-        if not week_index:
+        print(day.lower())
+        week_index = self.assertDay(day.lower())
+        print(week_index)
+        if week_index is None:
+            print("brian")
             return None
         lecture_index = self.assertPosition(position)
 
@@ -226,7 +232,10 @@ class TimetableSkill(MycroftSkill):
             self.speak_dialog("no_lecture")
             return None
 
-        self.speak_dialog("lecture_info", {"module": day[lecture_index].module,
+        day[lecture_index].slot_type = self._parse_slot_type(day[lecture_index].slot_type)
+        print(day[lecture_index].slot_type)
+        self.speak_dialog("lecture_info", {"type": day[lecture_index].slot_type,
+                          "module": day[lecture_index].module,
                           "s_time": day[lecture_index].startTime,
                           "location": day[lecture_index].location})
 
@@ -236,8 +245,11 @@ class TimetableSkill(MycroftSkill):
         week_index = self.assertDay(req_day)
         day = self.timetable.days[week_index]
 
+        day[INITIAL_LESSON].slot_type = self._parse_slot_type(day[INITIAL_LESSON].slot_type)
+        print(day[lecture_index].slot_type)
         self.speak_dialog("first_lec_ans",
-                          {"day": req_day,
+                           {"type": day[lecture_index].slot_type,
+                           "day": req_day,
                            "time": day[INITIAL_LESSON].startTime})
 
     def _get_current_time(self):
