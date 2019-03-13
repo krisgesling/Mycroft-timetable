@@ -41,6 +41,15 @@ class TimetableSkill(MycroftSkill):
     def handle_next_lesson(self, message):
         self._handle_next_lesson()
 
+    @intent_handler(IntentBuilder("").require("next_type").require("type_lesson").require("for")
+                    .require("module_type"))
+    def handle_next_type(self, message):
+        print("hello brian its working you legend")
+        print(message.data.get("type_lesson"))
+        print(message.data.get("module_type"))
+        self._handle_next_type(message.data.get("type_lesson"),
+                                re.sub(r'\W+', '', message.data.get("module_type")))
+
     @intent_handler(IntentBuilder("").require("General_Query")
                     .require("Starting").require("Type").require("day"))
     def handle_first_lesson_req(self, message):
@@ -51,6 +60,7 @@ class TimetableSkill(MycroftSkill):
                     .require("Pronoun").require("type_lesson"))
     def handle_type_lesson(self, message):
         print("hello world")
+        self._handle_only_next_type(message.data.get("type_lesson"))
 
     @intent_handler(IntentBuilder("").require("General_Query")
                     .require("Pronoun").require("pos").require("Type")
@@ -182,6 +192,50 @@ class TimetableSkill(MycroftSkill):
                 return days_of_week.index(day)
         self.speak_dialog("invalid_argument")
         return None
+
+    def _handle_next_type(self, l_type, module):
+        days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday",
+                        "saturday"]
+        counter = 0
+        for day in self.timetable.days:
+            if not day:
+                counter = counter + 1
+                continue
+            for lesson in day:
+                print(lesson.slot_type)
+                lesson.slot_type = self._parse_slot_type(lesson.slot_type)
+                print(l_type, lesson.slot_type)
+                if l_type == lesson.slot_type.lower():
+                    print(module, lesson.module)
+                    if module == lesson.module.lower():
+                        print(days_of_week[counter])
+                        print("we made it")
+                        self.speak_dialog("_next_type", {"type": l_type, "module":lesson.module,
+                                            "day": days_of_week[counter], "time": lesson.startTime,
+                                            "room": lesson.location})
+                        return
+            counter = counter + 1
+        self.speak_dialog("cant_find_type", {"type": l_type, "module_id": module})
+
+    def _handle_only_next_type(self, l_type):
+        days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday",
+                        "saturday"]
+        counter = 0
+        for day in self.timetable.days:
+            if not day:
+                counter = counter + 1
+                continue
+            for lesson in day:
+                print(lesson.slot_type)
+                lesson.slot_type = self._parse_slot_type(lesson.slot_type)
+                print(l_type, lesson.slot_type)
+                if l_type == lesson.slot_type.lower():
+                    self.speak_dialog("_next_type", {"type": l_type, "module":lesson.module,
+                                    "day": days_of_week[counter], "time": lesson.startTime,
+                                    "room": lesson.location})
+                    return
+        counter = counter + 1
+        self.speak_dialog("cant_find_type", {"type": l_type, "module_id": lesson.module})
 
     def assertPosition(self, chosen_pos):
         valid_position = ["first", "second", "third", "fourth", "fifth",
