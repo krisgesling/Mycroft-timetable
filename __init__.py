@@ -15,6 +15,26 @@ last_position = 7
 INITIAL_LESSON = 0
 
 
+def parseID(id):
+    numbers = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"] 
+    id = "".join(id.split())
+    id = id.replace("-", "")
+    id = id.replace("_", "")
+    id_array = re.findall('\d+|\D+', id)
+    proper_array = []
+    for i in id_array:
+         proper_array.append(sortID(i))
+    print(proper_array)
+    new_id = "".join(proper_array)
+    return new_id
+
+def sortID(string):
+    numbers = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+    for num in numbers:
+        if string == num:
+            return str(numbers.index(num))
+    return string
+
 class TimetableSkill(MycroftSkill):
 
     def __init__(self):
@@ -136,7 +156,8 @@ class TimetableSkill(MycroftSkill):
 
     @intent_handler(IntentBuilder("").require("Request").require("id"))
     def handle_intent(self, message):
-        id = message.data.get("id")
+        id = parseID(message.data.get("id"))
+        print(id)
         self.speak_dialog("searching", {"query": id})
         tt = self._lookup(id)
         if not tt:
@@ -148,9 +169,14 @@ class TimetableSkill(MycroftSkill):
 
     def _handle_module_detail_request(self, module_id):
         module_details = webscrape.get_module_details(module_id)
-        if not module_details:
-            self.speak_dialog("no entry found")
+        if module_details.name is None:
+            self.speak_dialog("no_entry_found")
             return
+
+        if module_details.lecturer is None:
+            self.speak_dialog("no_entry_found")
+            return
+
         self.speak_dialog("module_details_ans",
                           {"id": module_id, "name": module_details.name,
                            "lecturer": module_details.lecturer})
