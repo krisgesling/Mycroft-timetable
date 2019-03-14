@@ -1,1 +1,1 @@
-.*when is the next (?P<type_lesson>.*)
+.*when is (the|my) next (?P<type_lesson>.*)
