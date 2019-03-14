@@ -42,6 +42,55 @@ class TimetableSkill(MycroftSkill):
         super(TimetableSkill, self).__init__(name="TimetableSkill")
         self.timetable = self._lookup(self.settings.get("student_id"))
 
+    @intent_handler(IntentBuilder("").require("How_many").require("day"))
+    def handle_how_many(self, message):
+        day = message.data.get("day")
+        if day == "today":
+            
+            current_day = datetime.date.today()
+            current_weekday = calendar.day_name[current_day.weekday()].lower()
+            index_day = self.assertDay(current_weekday)
+            count = 0
+            for lesson in self.timetable.days[index_day]:
+                count = count + 1
+            if count == 0:
+                self.speak_dialog("no_lessons")
+                return
+            fir = self.timetable.days[index_day][0]
+            self.speak_dialog("number_lessons", {"num": count, "day":day})
+            self.speak_dialog("fir_count", {"time": fir.startTime, "day": day,
+                "module":fir.module, "place":fir.location})
+            return
+        if day == "tomorrow":
+            
+            current_day = datetime.date.today()
+            current_weekday = calendar.day_name[current_day.weekday()].lower()
+            index_day = self.assertDay(current_weekday) + 1
+            count = 0
+            for lesson in self.timetable.days[index_day]:
+                count = count + 1
+            if count == 0:
+                self.speak_dialog("no_lessons")
+                return
+            fir = self.timetable.days[index_day][0]
+            self.speak_dialog("number_lessons", {"num": count, "day":day})
+            self.speak_dialog("fir_count", {"time": fir.startTime, "day": day,
+                "module":fir.module, "place":fir.location})
+            return
+
+        index = self.assertDay(day)
+        print(index)
+        count = 0
+        for lesson in self.timetable.days[index]:
+            count = count + 1
+        if count == 0:
+            self.speak_dialog("no_lessons")
+            return
+        fir = self.timetable.days[index][0]
+        self.speak_dialog("number_lessons", {"num": count, "day":day.capitalize()})
+        self.speak_dialog("fir_count", {"time": fir.startTime, "day": day.capitalize(),
+            "module":fir.module, "place":fir.location})
+
     @intent_handler(IntentBuilder("").require("More")
                     .require("module"))
     def handle_tell_more(self, message):
