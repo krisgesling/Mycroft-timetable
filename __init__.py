@@ -108,10 +108,10 @@ class TimetableSkill(MycroftSkill):
     @intent_handler(IntentBuilder("").require("General_Query").require("lesson").require("do")
                     .require("pos").require("day"))
     def handle_class_day(self, message):
-        print("hey there")
-        print(message.data.get("pos").split()[0])
-        print(message.data.get("day"))
-        self._handle_query(message.data.get("pos").split()[0], message.data.get("day"))
+        pos = message.data.get("pos").split()[0]
+        if pos == "on":
+            pos = "last"
+        self._handle_query(pos, message.data.get("day"))
 
     @intent_handler(IntentBuilder("").require("General_Query")
                     .require("Pronoun").require("Next").require("Type"))
