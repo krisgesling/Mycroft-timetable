@@ -105,6 +105,14 @@ class TimetableSkill(MycroftSkill):
         module_id = parseID(module_id)
         self._handle_module_detail_request(module_id)
 
+    @intent_handler(IntentBuilder("").require("General_Query").require("lesson").require("do")
+                    .require("pos").require("day"))
+    def handle_class_day(self, message):
+        print("hey there")
+        print(message.data.get("pos").split()[0])
+        print(message.data.get("day"))
+        self._handle_query(message.data.get("pos").split()[0], message.data.get("day"))
+
     @intent_handler(IntentBuilder("").require("General_Query")
                     .require("Pronoun").require("Next").require("Type"))
     def handle_next_lesson(self, message):
@@ -356,6 +364,7 @@ class TimetableSkill(MycroftSkill):
             return None
         lecture_index = self.assertPosition(position)
 
+        print(lecture_index, "index")
         day = self.timetable.days[week_index]
 
         if not day:
@@ -383,9 +392,8 @@ class TimetableSkill(MycroftSkill):
         day = self.timetable.days[week_index]
 
         day[INITIAL_LESSON].slot_type = self._parse_slot_type(day[INITIAL_LESSON].slot_type)
-        print(day[lecture_index].slot_type)
         self.speak_dialog("first_lec_ans",
-                           {"type": day[lecture_index].slot_type,
+                           {"type": day[INITIAL_LESSON].slot_type,
                            "day": req_day,
                            "time": day[INITIAL_LESSON].startTime})
 
@@ -424,8 +432,31 @@ class TimetableSkill(MycroftSkill):
     def _handle_next_lesson_location(self):
         next_lesson = self._get_next_lesson()
 
+        days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday",
+                        "saturday"]
         if not next_lesson:
             self.speak_dialog("no_more_lessons")
+            current_day = datetime.date.today()
+            current_weekday = calendar.day_name[current_day.weekday()].lower()
+
+            week_index = self.assertDay(current_weekday)
+            c = week_index +1
+            while(1):
+                day = self.timetable.days[c]
+                if day is None:
+                    if c == 5:
+                        c = 0;
+                    else:
+                        c = c + 1
+                else:
+                    day[0].startTime = datetime.datetime.strptime(day[0].startTime,
+                                                  "%H:%M")
+                    day[0].startTime = datetime.datetime.strftime(day[0].startTime,
+                                                  "%I:%M %p")
+                    self.speak_dialog("nl", {"day": days_of_week[c], "module": day[0].module,
+                                    "time": day[0].startTime, "place": day[0].location})
+                    self.set_context("module", day[0].module)
+                    return
             return
 
         self.speak_dialog("next_lesson_location",
@@ -434,8 +465,27 @@ class TimetableSkill(MycroftSkill):
     def _handle_next_lesson(self):
         nl = self._get_next_lesson()  # next lesson
 
+        days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday",
+                        "saturday"]
         if not nl:
             self.speak_dialog("no_more_lessons")
+            current_day = datetime.date.today()
+            current_weekday = calendar.day_name[current_day.weekday()].lower()
+
+            week_index = self.assertDay(current_weekday)
+            c = week_index +1
+            while(1):
+                day = self.timetable.days[c]
+                if day is None:
+                    if c == 5:
+                        c = 0;
+                    else:
+                        c = c + 1
+                else:
+                    self.speak_dialog("nl", {"day": days_of_week[c], "module": day[0].module,
+                                    "time": day[0].startTime, "place": day[0].location})
+                    self.set_context("module", day[0].module)
+                    return
             return
         nl.startTime = datetime.datetime.strptime(nl.startTime,
                                                   "%H:%M")
