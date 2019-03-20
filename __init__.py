@@ -51,6 +51,9 @@ class TimetableSkill(MycroftSkill):
             current_weekday = calendar.day_name[current_day.weekday()].lower()
             index_day = self.assertDay(current_weekday)
             count = 0
+            if self.timetable.days[index_day] is None:
+                self.speak_dialog("You have no classes listed for that day")
+                return
             for lesson in self.timetable.days[index_day]:
                 count = count + 1
             if count == 0:
@@ -67,6 +70,9 @@ class TimetableSkill(MycroftSkill):
             current_weekday = calendar.day_name[current_day.weekday()].lower()
             index_day = self.assertDay(current_weekday) + 1
             count = 0
+            if self.timetable.days[index_day] is None:
+                self.speak_dialog("You have no classes listed for that day")
+                return
             for lesson in self.timetable.days[index_day]:
                 count = count + 1
             if count == 0:
