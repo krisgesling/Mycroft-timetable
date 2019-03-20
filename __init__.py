@@ -254,7 +254,9 @@ class TimetableSkill(MycroftSkill):
             return "Tutorial"
         if slot_type.split("-")[0] == "LEC":
             return "Lecture"
-        return "Lab"
+        if slot_type.split("-")[0] == "LAB":
+            return "Lab"
+        return slot_type
 
     def _lookup(self, student_id):
         try:
@@ -304,6 +306,7 @@ class TimetableSkill(MycroftSkill):
         days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday",
                         "saturday"]
         counter = 0
+        print("doing this")
         for day in self.timetable.days:
             if not day:
                 counter = counter + 1
@@ -311,7 +314,7 @@ class TimetableSkill(MycroftSkill):
             for lesson in day:
                 print(lesson.slot_type)
                 lesson.slot_type = self._parse_slot_type(lesson.slot_type)
-                print(l_type, lesson.slot_type)
+                print(l_type, lesson.slot_type.lower())
                 if l_type == lesson.slot_type.lower():
                     self.speak_dialog("_next_type", {"type": l_type, "module":lesson.module,
                                     "day": days_of_week[counter], "time": lesson.startTime,
