@@ -326,7 +326,7 @@ class TimetableSkill(MycroftSkill):
                                     "day": days_of_week[counter], "time": lesson.startTime,
                                     "room": lesson.location})
                     return
-        counter = counter + 1
+            counter = counter + 1
         self.speak_dialog("cant_find_type", {"type": l_type, "module_id": lesson.module})
 
     def assertPosition(self, chosen_pos):
